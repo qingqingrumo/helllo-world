@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>绑定 Demo</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      max-width: 720px;
+      margin: 40px auto;
+      padding: 0 16px;
+      line-height: 1.6;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: #444;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f7f7f7;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #ececec;
+    }
+
+    pre {
+      min-height: 140px;
+      padding: 16px;
+      border-radius: 10px;
+      background: #111827;
+      color: #e5e7eb;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cloudflare Pages 绑定 Demo</h1>
+  <p>
+    这个示例演示 <code>KV 绑定</code>。
+    请先在 Pages 后台绑定一个 KV namespace，变量名填 <code>COUNTER</code>。
+  </p>
+
+  <div class="actions">
+    <button id="read-btn">读取当前计数</button>
+    <button id="plus-btn">计数 +1</button>
+  </div>
+
+  <pre id="result">点击按钮查看 KV 绑定效果</pre>
+
+  <script>
+    const result = document.getElementById("result");
+
+    async function showResponse(path) {
+      try {
+        const res = await fetch(path, { method: "POST" });
+        const text = await res.text();
+
+        try {
+          const json = JSON.parse(text);
+          result.textContent = JSON.stringify(json, null, 2);
+        } catch {
+          result.textContent = `${res.status} ${text}`;
+        }
+      } catch (err) {
+        result.textContent = `请求失败: ${err.message}`;
+      }
+    }
+
+    document.getElementById("read-btn").addEventListener("click", async () => {
+      try {
+        const res = await fetch("/api/counter");
+        const text = await res.text();
+
+        try {
+          const json = JSON.parse(text);
+          result.textContent = JSON.stringify(json, null, 2);
+        } catch {
+          result.textContent = `${res.status} ${text}`;
+        }
+      } catch (err) {
+        result.textContent = `请求失败: ${err.message}`;
+      }
+    });
+
+    document.getElementById("plus-btn").addEventListener("click", () => {
+      showResponse("/api/increment");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D1 评论 Demo</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      max-width: 780px;
+      margin: 40px auto;
+      padding: 0 16px;
+      line-height: 1.6;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: #444;
+    }
+
+    textarea,
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 16px 0 24px;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f7f7f7;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #ececec;
+    }
+
+    pre,
+    .comments {
+      padding: 16px;
+      border-radius: 10px;
+      background: #111827;
+      color: #e5e7eb;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .comment-item {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .comment-item:last-child {
+      border-bottom: none;
+    }
+
+    .muted {
+      color: #9ca3af;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cloudflare Pages D1 评论 Demo</h1>
+  <p>
+    这个示例演示 <code>D1 绑定</code>。请先在 Pages 后台绑定一个 D1 数据库，
+    变量名填 <code>DB</code>，并执行 README 里的建表 SQL。
+  </p>
+
+  <label>
+    昵称
+    <input id="author" value="majeer" />
+  </label>
+
+  <label>
+    评论内容
+    <textarea id="content">这是我的第一条评论。</textarea>
+  </label>
+
+  <div class="actions">
+    <button id="submit-btn">提交评论</button>
+    <button id="load-btn">读取评论列表</button>
+  </div>
+
+  <pre id="result">点击按钮查看接口返回</pre>
+
+  <h2>评论列表</h2>
+  <div id="comments" class="comments">还没有加载评论</div>
+
+  <script>
+    const result = document.getElementById("result");
+    const commentsBox = document.getElementById("comments");
+
+    async function loadComments() {
+      try {
+        const res = await fetch("/api/comments");
+        const text = await res.text();
+        const data = JSON.parse(text);
+
+        result.textContent = JSON.stringify(data, null, 2);
+
+        if (!data.comments || data.comments.length === 0) {
+          commentsBox.textContent = "当前没有评论";
+          return;
+        }
+
+        commentsBox.innerHTML = data.comments.map((item) => `
+          <div class="comment-item">
+            <div class="muted">#${item.id} · ${item.author} · ${item.created_at}</div>
+            <div>${item.content}</div>
+          </div>
+        `).join("");
+      } catch (err) {
+        result.textContent = `请求失败: ${err.message}`;
+      }
+    }
+
+    document.getElementById("submit-btn").addEventListener("click", async () => {
+      try {
+        const author = document.getElementById("author").value.trim();
+        const content = document.getElementById("content").value.trim();
+
+        const res = await fetch("/api/comment", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json"
+          },
+          body: JSON.stringify({ author, content })
+        });
+
+        const text = await res.text();
+        let data;
+
+        try {
+          data = JSON.parse(text);
+          result.textContent = JSON.stringify(data, null, 2);
+        } catch {
+          result.textContent = `${res.status} ${text}`;
+          return;
+        }
+
+        await loadComments();
+      } catch (err) {
+        result.textContent = `请求失败: ${err.message}`;
+      }
+    });
+
+    document.getElementById("load-btn").addEventListener("click", loadComments);
+  </script>
+</body>
+</html>

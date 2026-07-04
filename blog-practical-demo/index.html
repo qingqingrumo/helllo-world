@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>博客实战 Demo</title>
+  <style>
+    :root {
+      --bg: #f7f3eb;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #c96b3b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #fbf8f3 0%, var(--bg) 100%);
+    }
+
+    .wrap {
+      width: min(900px, calc(100vw - 32px));
+      margin: 32px auto 56px;
+    }
+
+    .hero,
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 40px rgba(17, 24, 39, 0.06);
+    }
+
+    .hero {
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    h1, h2 {
+      margin: 0 0 10px;
+    }
+
+    p {
+      line-height: 1.7;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      padding: 22px;
+    }
+
+    .card + .card {
+      margin-top: 20px;
+    }
+
+    .article {
+      margin-top: 16px;
+      color: #374151;
+    }
+
+    .article p {
+      margin: 0 0 14px;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    button {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      cursor: pointer;
+      background: #fafafa;
+    }
+
+    button:hover {
+      background: #f2f2f2;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      margin-top: 8px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    pre,
+    .comments {
+      margin: 0;
+      background: #111827;
+      color: #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow: auto;
+    }
+
+    .comment-item {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .comment-item:last-child {
+      border-bottom: none;
+    }
+
+    .comment-meta {
+      color: #9ca3af;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    code {
+      background: #f3f4f6;
+      border-radius: 6px;
+      padding: 2px 6px;
+    }
+
+    @media (max-width: 820px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow">Blog Practical Demo</div>
+      <h1 id="site-name">正在读取站点配置...</h1>
+      <p id="site-desc" class="small">这个例子把变量、密钥、KV、D1 一起串起来。</p>
+      <div class="meta">
+        <span>文章 slug: <code id="slug-text">hello-cloudflare</code></span>
+        <span>阅读量: <strong id="view-count">-</strong></span>
+        <span>联系邮箱: <strong id="admin-email">-</strong></span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <main>
+        <section class="card">
+          <div class="eyebrow">Article</div>
+          <h2>把 Cloudflare Pages 真正用成一个小博客</h2>
+          <div class="article">
+            <p>这个页面模拟了一篇博客文章。页面本身是静态文件，但它在加载时会做几件动态的事。</p>
+            <p>第一，它会从 <code>文本变量</code> 中读取站点名和联系邮箱。第二，它会调用一个使用 <code>KV 绑定</code> 的接口，把当前文章阅读量加一。第三，它会通过 <code>D1 绑定</code> 读取和提交评论。</p>
+            <p>如果你再点右边的“测试受保护接口”，它会带上一个请求头给后端做校验，这就是 <code>密钥</code> 在服务端的典型用法。</p>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="eyebrow">Comments</div>
+          <h2>评论区</h2>
+          <label>
+            昵称
+            <input id="author" value="majeer">
+          </label>
+          <label>
+            评论内容
+            <textarea id="content">这篇示例把几个概念串起来了，挺好理解。</textarea>
+          </label>
+          <div class="actions">
+            <button id="submit-comment">提交评论</button>
+            <button id="reload-comments">刷新评论</button>
+          </div>
+          <div id="comments" class="comments">正在加载评论...</div>
+        </section>
+      </main>
+
+      <aside>
+        <section class="card">
+          <div class="eyebrow">Runtime</div>
+          <h2>接口返回</h2>
+          <pre id="result">页面初始化中...</pre>
+        </section>
+
+        <section class="card">
+          <div class="eyebrow">Secret</div>
+          <h2>密钥演示</h2>
+          <p class="small">这个按钮会请求一个需要 <code>ADMIN_TOKEN</code> 的接口。前端只做演示，真实项目里不要把密钥硬编码到页面。</p>
+          <div class="actions">
+            <button id="check-admin">测试受保护接口</button>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const slug = "hello-cloudflare";
+    const result = document.getElementById("result");
+    const commentsBox = document.getElementById("comments");
+
+    function show(data) {
+      if (typeof data === "string") {
+        result.textContent = data;
+        return;
+      }
+      result.textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function parseResponse(res) {
+      const text = await res.text();
+      try {
+        return JSON.parse(text);
+      } catch {
+        return `${res.status} ${text}`;
+      }
+    }
+
+    async function loadConfig() {
+      const res = await fetch("/api/config");
+      const data = await parseResponse(res);
+      show(data);
+
+      if (typeof data === "string") {
+        return;
+      }
+
+      document.getElementById("site-name").textContent = data.siteName;
+      document.getElementById("site-desc").textContent = data.description;
+      document.getElementById("admin-email").textContent = data.adminEmail;
+    }
+
+    async function increaseViews() {
+      const res = await fetch(`/api/views?slug=${encodeURIComponent(slug)}`, {
+        method: "POST"
+      });
+      const data = await parseResponse(res);
+      show(data);
+
+      if (typeof data !== "string") {
+        document.getElementById("view-count").textContent = data.count;
+      }
+    }
+
+    async function loadComments() {
+      const res = await fetch(`/api/comments?slug=${encodeURIComponent(slug)}`);
+      const data = await parseResponse(res);
+      show(data);
+
+      if (typeof data === "string") {
+        commentsBox.textContent = data;
+        return;
+      }
+
+      if (!data.comments || data.comments.length === 0) {
+        commentsBox.textContent = "还没有评论";
+        return;
+      }
+
+      commentsBox.innerHTML = data.comments.map((item) => `
+        <div class="comment-item">
+          <div class="comment-meta">#${item.id} · ${item.author} · ${item.created_at}</div>
+          <div>${item.content}</div>
+        </div>
+      `).join("");
+    }
+
+    async function submitComment() {
+      const author = document.getElementById("author").value.trim();
+      const content = document.getElementById("content").value.trim();
+
+      const res = await fetch("/api/comments", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ slug, author, content })
+      });
+
+      const data = await parseResponse(res);
+      show(data);
+      await loadComments();
+    }
+
+    async function checkAdmin() {
+      const res = await fetch("/api/admin", {
+        headers: {
+          "x-admin-token": "demo-admin-token"
+        }
+      });
+      const data = await parseResponse(res);
+      show(data);
+    }
+
+    document.getElementById("submit-comment").addEventListener("click", submitComment);
+    document.getElementById("reload-comments").addEventListener("click", loadComments);
+    document.getElementById("check-admin").addEventListener("click", checkAdmin);
+
+    (async () => {
+      try {
+        await loadConfig();
+        await increaseViews();
+        await loadComments();
+      } catch (err) {
+        show(`请求失败: ${err.message}`);
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -86,7 +86,7 @@
     document.getElementById("token-btn").addEventListener("click", async () => {
       const res = await fetch("/api/check", {
         headers: {
-          "x-token": "abc123456"
+          "x-token": "123456"
         }
       });
       result.textContent = await res.text();
